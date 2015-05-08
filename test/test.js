@@ -2,9 +2,11 @@ var stream = require("stream");
 var router = require("./../index")({
     "/my/**/*":"func:testFun",
 
-    "index":"url:test/index.html",
+    "index":"url:index.html",
 
-    "/public/bi*/**/*":"url:test/public/**/*"
+    "test?v=*":"url:my*.html",
+
+    "/public/bi*/**/*":"url:public/**/*"
 });
 
 router.on("notmatch" , function(){
@@ -32,12 +34,17 @@ describe("check" , function(){
     });
 
     it("test2" , function(done){
-        test("/my/1/2/3/4/abs.html");
+        test("/my/1/2/3/4/abs.html?v=22");
         done();
     });
 
     it("test3" , function(done){
         test("/index");
+        done();
+    });
+
+    it("test4" , function(done){
+        test("/test?v=index");
         done();
     });
 });
