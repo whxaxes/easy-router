@@ -1,4 +1,4 @@
-var router = require("./router")({
+var router = require("./index")({
     "/my/**/*":"func:transRequest",
 
     "/public/bi*/**/*":"url:../public/**/*"
