@@ -40,8 +40,8 @@ var rp = Router.prototype;
 rp.constructor = Router;
 
 rp.handleMaps = function () {
-    this.filters = [];  //存放根据key转化的正则
-    this.address = [];  //存放相应的地址
+    this.filters = [];  //存放路由地址
+    this.address = [];  //存放目标地址
 
     for (var k in this.maps) {
         var fil = trim(k);
