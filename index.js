@@ -22,7 +22,7 @@ var Router = function (arg , options) {
         useZlib:true,
         useCache:true,
         maxCacheSize:0.5      //凡是小于maxCacheSize的资源将以文件内容的md5值作为Etag，单位为MB
-    }
+    };
 
     if ((typeof arg == "object") && !(arg instanceof Array)) {
         this.maps = arg;
@@ -142,16 +142,15 @@ rp.routeTo = function(req , res , filepath){
         //如果为资源文件则使用http缓存
         if(that.useCache && /^(js|css|png|jpg|gif)$/.test(fileKind)){
             options['Cache-Control'] = 'max-age=' + (365 * 24 * 60 * 60 * 1000);
-            times = trim(String(stats.mtime).replace("(中国标准时间)" , ""));
+            times = trim(String(stats.mtime).replace(/\([^\x00-\xff]+\)/g , ""));
 
             //先判断文件更改时间
-            //console.log(req.headers['if-modified-since'].length)
-            //console.log(times.length)
             if(req.headers['if-modified-since']==times){
                 that.cache(res);
                 return;
             }
 
+            //如果文件小于一定值，则直接将文件内容的md5值作为etag值
             if(~~(stats.size/1024/1024) <= +that.maxCacheSize){
                 source = fs.readFileSync(filepath);
                 etag = '"'+stats.size+'-'+crypto.createHash("md5").update(source).digest("hex").substring(0,10)+'"';
@@ -211,9 +210,10 @@ rp.routeTo = function(req , res , filepath){
     })
 }
 
+var motions = ["(๑¯ิε ¯ิ๑)" , "(●′ω`●)" , "=皿=!" , "(ง •̀_•́)ง┻━┻" , "┑(￣Д ￣)┍" , "覀L覀"];
 rp.error = function(res){
-    res.writeHead(404);
-    res.end("404 not found");
+    res.writeHead(404 , {'content-type':'text/html;charset=utf-8'});
+    res.end('<div style="text-align: center;font: 20px \'微软雅黑\';line-height: 100px;color: red;">404 Not Found&nbsp;&nbsp;&nbsp;'+motions[Math.floor(Math.random()*motions.length)]+'</div>');
 }
 
 rp.cache = function(res , options){
