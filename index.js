@@ -16,10 +16,6 @@ var ALL_FILES_REG_STR = '[\\w._-]+';
 var noop = function () {};
 var cache = {};
 
-String.prototype.trim = function(){
-    return this.replace(/(^(\s+))|((\s+)$)/g, '');
-};
-
 var Router = function (arg , options) {
     this.methods = {};
     var defaults = {
