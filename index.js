@@ -9,7 +9,7 @@ var mimes = require("./mimes");
 var crypto = require("crypto");
 var stream = require("stream");
 
-var ALL_FOLDER_REG = /\/\*\*\//g;
+var ALL_FOLDER_REG = /(\/|^)\*\*\//g;
 var ALL_FOLDER_REG_STR = '/([\\w._-]*\/)*';
 var ALL_FILES_REG = /\*+/g;
 var ALL_FILES_REG_STR = '[\\w._-]+';
@@ -58,11 +58,13 @@ rp.handleMaps = function () {
 
     for (var k in this.maps) {
         var fil = k.trim();
-        var ad = this.maps[k].trim();
+        var ad = this.maps[k].trim().split(':' , 2);
 
         fil = fil.charAt(0) == "/" ? fil : ("/" + fil);
 
-        ad = ad.replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
+        if(ad[0]==="url"){
+            ad[1] = ad[1].replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
+        }
         fil = fil.replace(/\?/g , "\\?").replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
 
         this.filters.push(fil);
@@ -78,190 +80,191 @@ rp.set = function (name, func) {
 
 rp.route = function (req, res) {
     var urlobj = url.parse(req.url);
-    var pathname = urlobj.pathname;
 
     var i = 0;
-    var match = false;
-    var fil;
+    var fil , ads , pathname;
 
     for (; i < this.filters.length; i++) {
         fil = this.filters[i];
+        ads = this.address[i];
+
         var reg = new RegExp("^" + fil.replace(/__A__/g, ALL_FOLDER_REG_STR).replace(/__B__/g, ALL_FILES_REG_STR) + "$");
 
-        if (reg.test(fil.indexOf("?") >= 0 ? (pathname = urlobj.path) : pathname)) {
-            match = true;
-            break;
+        if (reg.test(pathname = (fil.indexOf("?") >= 0 ? urlobj.path : urlobj.pathname))) {
+            if(ads[0] === "url"){
+                //如果是url则查找相应url的文件
+                var filepath = getpath(fil , ads[1] , pathname);
+                this.emit("path" , filepath , pathname);
+                if(this.routeTo(req , res , filepath)){
+                    this.emit("match", filepath , pathname);
+                    return;
+                }
+            }else if(ads[0] === "func" && (ads[1] in this.methods)){
+                //如果是func则执行保存在methods里的方法
+                this.methods[ads[1]].call(this , req , res , pathname);
+
+                return;
+            }
         }
     }
 
-    if (match) {
-        var ad = this.address[i];
-        var array = ad.split(':' , 2);
+    this.emit("notmatch");
 
-        if(array[0] === "url"){
-            //如果是url则查找相应url的文件
-            var filepath = getpath(fil , array[1] , pathname);
-
-            this.emit("match", filepath , pathname);
-
-            this.routeTo(req , res , filepath);
-        }else if(array[0] === "func" && (array[1] in this.methods)){
-            //如果是func则执行保存在methods里的方法
-            this.methods[array[1]].call(this , req , res , pathname);
-        }else {
-            throw new Error("route Error");
-        }
-    }else {
-        this.emit("notmatch");
-
-        this.error(res);
-    }
+    this.error(res);
 };
 
 rp.routeTo = function(req , res , filepath){
     var that = this;
     var accept = req.headers['accept-encoding'];
     var etag,times;
-    fs.stat(filepath , function(err , stats){
-        if(err || !stats.isFile()){
-            that.emit("error" , err || (new Error("path is not file")));
 
-            that.error(res);
-            return;
+    if(!fs.existsSync(filepath)) return false;
+
+    var stats = fs.statSync(filepath);
+
+    if(!stats.isFile()) return false;
+
+    var fileKind = filepath.substring((filepath.lastIndexOf(".")+1)||0 , filepath.length);
+    var source = fs.createReadStream(filepath);
+
+    var index = mimes.indexOf('.'+fileKind);
+    var options = {
+        'Content-Type': mimes[index+1]+';charset=utf-8',
+        'X-Power-By':'Easy-Router'
+    };
+
+    //如果为资源文件则使用http缓存
+    if(that.useCache && /^(js|css|png|jpg|gif)$/.test(fileKind)){
+        options['Cache-Control'] = 'max-age=' + (365 * 24 * 60 * 60 * 1000);
+        times = String(stats.mtime).replace(/\([^\x00-\xff]+\)/g , "").trim();
+
+        //先判断文件更改时间
+        if(req.headers['if-modified-since']==times){
+            that.cache(res);
+            return true;
         }
 
-        var fileKind = filepath.substring((filepath.lastIndexOf(".")+1)||0 , filepath.length);
-        var source = fs.createReadStream(filepath);
+        //如果文件小于一定值，则直接将文件内容的md5值作为etag值
+        if(~~(stats.size/1024/1024) <= +that.maxCacheSize){
+            source = fs.readFileSync(filepath);
+            etag = '"'+stats.size+'-'+crypto.createHash("md5").update(source).digest("hex").substring(0,10)+'"';
+        }else {
+            etag = 'W/"'+stats.size+'-'+crypto.createHash("md5").update(times).digest("hex").substring(0,10)+'"';
+        }
 
-        var index = mimes.indexOf('.'+fileKind);
-        var options = {
-            'Content-Type': mimes[index+1]+';charset=utf-8',
-            'X-Power-By':'Easy-Router'
-        };
+        //如果文件更改时间发生了变化，再判断etag
+        if(req.headers['if-none-match'] === etag){
+            that.cache(res);
+            return true;
+        }
 
-        //如果为资源文件则使用http缓存
-        if(that.useCache && /^(js|css|png|jpg|gif)$/.test(fileKind)){
-            options['Cache-Control'] = 'max-age=' + (365 * 24 * 60 * 60 * 1000);
-            times = String(stats.mtime).replace(/\([^\x00-\xff]+\)/g , "").trim();
+        options['ETag'] = etag;
+        options['Last-Modified'] = times;
+    }else {
+        options['Cache-Control'] = 'no-cache';
+    }
 
-            //先判断文件更改时间
-            if(req.headers['if-modified-since']==times){
-                that.cache(res);
-                return;
-            }
+    //如果为文本文件则使用zlib压缩
+    if(that.useZlib && /^(js|css|html)$/.test(fileKind)){
+        if(/\bgzip\b/g.test(accept)){
+            options['Content-Encoding'] = 'gzip';
+            res.writeHead(200, options);
 
-            //如果文件小于一定值，则直接将文件内容的md5值作为etag值
-            if(~~(stats.size/1024/1024) <= +that.maxCacheSize){
-                source = fs.readFileSync(filepath);
-                etag = '"'+stats.size+'-'+crypto.createHash("md5").update(source).digest("hex").substring(0,10)+'"';
+            //如果是stream则直接使用pipe
+            if(isStream(source)){
+                source.pipe(zlib.createGzip()).pipe(res);
             }else {
-                etag = 'W/"'+stats.size+'-'+crypto.createHash("md5").update(times).digest("hex").substring(0,10)+'"';
+                zlib.gzip(source , function(err , buffer){
+                    if(err) console.log(err)
+                    res.end(buffer)
+                })
             }
-
-            //如果文件更改时间发生了变化，再判断etag
-            if(req.headers['if-none-match'] === etag){
-                that.cache(res);
-                return;
+            return true;
+        }else if(/\bdeflate\b/g.test(accept)){
+            options['Content-Encoding'] = 'deflate';
+            res.writeHead(200, options);
+            if(isStream(source)){
+                source.pipe(zlib.createDeflate()).pipe(res);
+            }else {
+                zlib.deflate(source , function(err , buffer){
+                    res.end(buffer)
+                })
             }
-
-            options['ETag'] = etag;
-            options['Last-Modified'] = times;
-        }else {
-            options['Cache-Control'] = 'no-cache';
+            return true;
         }
+    }
 
-        //如果为文本文件则使用zlib压缩
-        if(that.useZlib && /^(js|css|html)$/.test(fileKind)){
-            if(/\bgzip\b/g.test(accept)){
-                options['Content-Encoding'] = 'gzip';
-                res.writeHead(200, options);
+    res.writeHead(200, options);
 
-                //如果是stream则直接使用pipe
-                if(isStream(source)){
-                    source.pipe(zlib.createGzip()).pipe(res);
-                }else {
-                    zlib.gzip(source , function(err , buffer){
-                        if(err) console.log(err)
-                        res.end(buffer)
-                    })
-                }
-                return;
-            }else if(/\bdeflate\b/g.test(accept)){
-                options['Content-Encoding'] = 'deflate';
-                res.writeHead(200, options);
-                if(isStream(source)){
-                    source.pipe(zlib.createDeflate()).pipe(res);
-                }else {
-                    zlib.deflate(source , function(err , buffer){
-                        res.end(buffer)
-                    })
-                }
-                return;
-            }
-        }
+    if(isStream(source)){
+        source.pipe(res);
+    }else {
+        res.end(source);
+    }
 
-        res.writeHead(200, options);
-
-        if(isStream(source)){
-            source.pipe(res);
-        }else {
-            res.end(source);
-        }
-    })
-}
+    return true;
+};
 
 var motions = ["(๑¯ิε ¯ิ๑)" , "(●′ω`●)" , "=皿=!" , "(ง •̀_•́)ง┻━┻" , "┑(￣Д ￣)┍" , "覀L覀"];
 rp.error = function(res){
     res.writeHead(404 , {'content-type':'text/html;charset=utf-8'});
     res.end('<div style="text-align: center;font: 20px \'微软雅黑\';line-height: 100px;color: red;">404 Not Found&nbsp;&nbsp;&nbsp;'+motions[Math.floor(Math.random()*motions.length)]+'</div>');
-}
+};
 
 rp.cache = function(res , options){
     res.writeHead(304);
     res.end();
-}
+};
 
 function isStream(source){
     return (source instanceof stream);
 }
 
-function getpath(fil , ad , pathname){
-    var filepath = ad;
-    if(/__(A|B)__/g.test(fil) && /__(A|B)__/g.test(ad)){
-        var ay = fil.split("__");
-        var dy = ad.split("__");
+//该方法是根据路由规则，转换请求路径为文件路径
+function getpath(fil, ads, pathname) {
+    var filepath = ads;
+    var collector = [];
+    if (/__(A|B)__/g.test(fil) && /__(A|B)__/g.test(ads)) {
+        var filArray = fil.split("__");
+        var adsArray = ads.split("__");
 
         var index = 0;
-        for(var k=0;k<ay.length;k++){
-            if(!ay[k]) continue;
 
-            var reg;
-            if (ay[k] === 'A' || ay[k] === 'B') {
-                reg = new RegExp(ay[k] === 'A' ? ALL_FOLDER_REG_STR : ALL_FILES_REG_STR);
+        //先将不需要匹配的字符过滤掉
+        for (var k = 0; k < filArray.length; k++) {
+            if (!filArray[k]) continue;
 
-                //扫描路径，当遇到AB关键字时处理，如果两者不相等，停下dy的扫描，继续执行对ay的扫描，直至遇到相等数值
-                while(index < dy.length){
-                    if(dy[index] === 'A' || dy[index] === 'B'){
-                        if(dy[index] === ay[k]){
-                            dy[index] = pathname.match(reg)[0];
-                            index++;
-                        }
-                        break;
-                    }
-                    index++;
-                }
+            if (filArray[k] === 'A' || filArray[k] === 'B') {
+                collector.push(filArray[k])
             } else {
-                reg = new RegExp(ay[k]);
+                pathname = pathname.replace(new RegExp(filArray[k]), '');
+            }
+        }
+
+        //再根据正则拆分路径
+        collector.forEach(function (element) {
+            var reg = new RegExp(element === 'A' ? ALL_FOLDER_REG_STR : ALL_FILES_REG_STR);
+
+            //扫描路径，当遇到AB关键字时处理，如果两者不相等，停下adsArray的扫描，继续执行对filArray的扫描，直至遇到相等数值
+            while (index < adsArray.length) {
+                if (adsArray[index] === 'A' || adsArray[index] === 'B') {
+                    if (adsArray[index] === element) {
+                        adsArray[index] = pathname.match(reg)[0];
+                        index++;
+                    }
+                    break;
+                }
+                index++;
             }
 
             pathname = pathname.replace(reg, '');
-        }
+        });
 
-        filepath =  dy.join("");
+        filepath = adsArray.join("");
     }
 
     filepath = path.normalize(filepath);
-    filepath = filepath.charAt(0) == path.sep ? filepath.substring(1,filepath.length):filepath;
+    filepath = filepath.charAt(0) == path.sep ? filepath.substring(1, filepath.length) : filepath;
 
     return filepath;
 }

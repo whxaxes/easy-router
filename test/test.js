@@ -6,6 +6,8 @@ var router = require("./../index")({
 
     "test?v=*":"url:my*.html",
 
+    "nihao/**/ho*eo":"url:**/*.html",
+
     "/public/bi*/**/*":"url:public/**/*"
 });
 
@@ -13,9 +15,9 @@ router.on("notmatch" , function(){
     console.log('not match');
 });
 
-router.on("match" , function(path , requestpath){
+router.on("path" , function(path , requestpath){
     console.log("请求路径："+requestpath);
-    console.log("==> "+path);
+    console.log("路由转换： "+path);
 });
 
 router.on("error" , function(err){
@@ -24,7 +26,7 @@ router.on("error" , function(err){
 
 router.set("testFun" , function(req , res , requestpath){
     console.log("请求路径："+requestpath);
-    console.log("执行 testFun");
+    console.log("执行方法：testFun");
 });
 
 describe("check" , function(){
@@ -45,6 +47,11 @@ describe("check" , function(){
 
     it("test4" , function(done){
         test("/test?v=index");
+        done();
+    });
+
+    it("test5" , function(done){
+        test("/nihao/asd/asd/asd/homemeeo");
         done();
     });
 });
