@@ -56,7 +56,12 @@ function test(url){
         done();
     };
 
-    router.route({
-        url : url
-    } , res);
+    var req = {
+        url:url,
+        headers:{
+            'accept-encoding':''
+        }
+    };
+
+    router.route(req , res);
 }

@@ -16,6 +16,10 @@ var ALL_FILES_REG_STR = '[\\w._-]+';
 var noop = function () {};
 var cache = {};
 
+String.prototype.trim = function(){
+    return this.replace(/(^(\s+))|((\s+)$)/g, '');
+};
+
 var Router = function (arg , options) {
     this.methods = {};
     var defaults = {
@@ -57,8 +61,8 @@ rp.handleMaps = function () {
     this.address = [];  //存放相应的地址
 
     for (var k in this.maps) {
-        var fil = trim(k);
-        var ad = trim(this.maps[k]);
+        var fil = k.trim();
+        var ad = this.maps[k].trim();
 
         fil = fil.charAt(0) == "/" ? fil : ("/" + fil);
 
@@ -142,7 +146,7 @@ rp.routeTo = function(req , res , filepath){
         //如果为资源文件则使用http缓存
         if(that.useCache && /^(js|css|png|jpg|gif)$/.test(fileKind)){
             options['Cache-Control'] = 'max-age=' + (365 * 24 * 60 * 60 * 1000);
-            times = trim(String(stats.mtime).replace(/\([^\x00-\xff]+\)/g , ""));
+            times = String(stats.mtime).replace(/\([^\x00-\xff]+\)/g , "").trim();
 
             //先判断文件更改时间
             if(req.headers['if-modified-since']==times){
@@ -264,10 +268,6 @@ function getpath(fil , ad , pathname){
     filepath = filepath.charAt(0) == path.sep ? filepath.substring(1,filepath.length):filepath;
 
     return filepath;
-}
-
-function trim(str) {
-    return str.replace(/(^(\s+))|((\s+)$)/g, '');
 }
 
 module.exports = function (arg) {
