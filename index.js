@@ -101,7 +101,14 @@ rp.route = function (req, res) {
                 }
             }else if(ads[0] === "func" && (ads[1] in this.methods)){
                 //如果是func则执行保存在methods里的方法
-                this.methods[ads[1]].call(this , req , res , pathname);
+                var args = [];
+                for(var i=0;i<=arguments.length;i++){
+                    if(i==2){
+                        args.push(pathname)
+                    }
+                    args.push(arguments[i])
+                }
+                this.methods[array[1]].apply(this , args);
 
                 return;
             }
@@ -211,7 +218,7 @@ rp.error = function(res){
     res.end('<div style="text-align: center;font: 20px \'微软雅黑\';line-height: 100px;color: red;">404 Not Found&nbsp;&nbsp;&nbsp;'+motions[Math.floor(Math.random()*motions.length)]+'</div>');
 };
 
-rp.cache = function(res , options){
+rp.cache = function(res){
     res.writeHead(304);
     res.end();
 };
