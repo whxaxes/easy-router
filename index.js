@@ -108,7 +108,7 @@ rp.route = function (req, res) {
                     }
                     args.push(arguments[i])
                 }
-                this.methods[array[1]].apply(this , args);
+                this.methods[ads[1]].apply(this , args);
 
                 return;
             }
