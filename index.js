@@ -152,11 +152,11 @@ rp.routeTo = function(req , res , filepath){
         }
 
         //如果文件小于一定值，则直接将文件内容的md5值作为etag值
+        var hash = crypto.createHash("md5");
         if(~~(stats.size/1024/1024) <= +that.maxCacheSize){
-            source = fs.readFileSync(filepath);
-            etag = '"'+stats.size+'-'+crypto.createHash("md5").update(source).digest("hex").substring(0,10)+'"';
+            etag = '"'+stats.size+'-'+hash.update(fs.readFileSync(filepath)).digest("hex").substring(0,10)+'"';
         }else {
-            etag = 'W/"'+stats.size+'-'+crypto.createHash("md5").update(times).digest("hex").substring(0,10)+'"';
+            etag = 'W/"'+stats.size+'-'+hash.update(times).digest("hex").substring(0,10)+'"';
         }
 
         //如果文件更改时间发生了变化，再判断etag
@@ -177,37 +177,18 @@ rp.routeTo = function(req , res , filepath){
             options['Content-Encoding'] = 'gzip';
             res.writeHead(200, options);
 
-            //如果是stream则直接使用pipe
-            if(isStream(source)){
-                source.pipe(zlib.createGzip()).pipe(res);
-            }else {
-                zlib.gzip(source , function(err , buffer){
-                    if(err) console.log(err)
-                    res.end(buffer)
-                })
-            }
+            source.pipe(zlib.createGzip()).pipe(res);
             return true;
         }else if(/\bdeflate\b/g.test(accept)){
             options['Content-Encoding'] = 'deflate';
             res.writeHead(200, options);
-            if(isStream(source)){
-                source.pipe(zlib.createDeflate()).pipe(res);
-            }else {
-                zlib.deflate(source , function(err , buffer){
-                    res.end(buffer)
-                })
-            }
+            source.pipe(zlib.createDeflate()).pipe(res);
             return true;
         }
     }
 
     res.writeHead(200, options);
-
-    if(isStream(source)){
-        source.pipe(res);
-    }else {
-        res.end(source);
-    }
+    source.pipe(res);
 
     return true;
 };
@@ -222,10 +203,6 @@ rp.cache = function(res){
     res.writeHead(304);
     res.end();
 };
-
-function isStream(source){
-    return (source instanceof stream);
-}
 
 //该方法是根据路由规则，转换请求路径为文件路径
 function getpath(fil, ads, pathname) {
