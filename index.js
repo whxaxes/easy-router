@@ -39,7 +39,7 @@ var Router = function (arg , options) {
     }
 
     for (var key in defaults) {
-        this[key] = ((typeof options == "obejct") && (key in options)) ? options[key] : defaults[key];
+        this[key] = ((typeof options == "object") && (key in options)) ? options[key] : defaults[key];
     }
 
     this.handleMaps();
@@ -253,6 +253,6 @@ function getpath(fil, ads, pathname) {
     return filepath;
 }
 
-module.exports = function (arg) {
-    return new Router(arg);
+module.exports = function (arg , options) {
+    return new Router(arg , options);
 };
