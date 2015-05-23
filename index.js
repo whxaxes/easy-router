@@ -131,7 +131,7 @@ rp.routeTo = function(req , res , filepath){
 
     if(!stats.isFile()) return false;
 
-    var fileKind = filepath.substring((filepath.lastIndexOf(".")+1)||0 , filepath.length);
+    var fileKind = filepath.substring((filepath.lastIndexOf(".")+1)||0 , filepath.length).toLowerCase();
     var source = fs.createReadStream(filepath);
 
     var index = mimes.indexOf('.'+fileKind);
