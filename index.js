@@ -15,6 +15,10 @@ var ALL_FILES_REG = /\*+/g;
 var ALL_FILES_REG_STR = '[\\w._-]+';
 var noop = function () {};
 var cache = {};
+var router = null;
+
+var FUN_NAME = "easy_router_function_";
+var SEQ = 1000000;
 
 var Router = function (arg , options) {
     this.methods = {};
@@ -52,24 +56,43 @@ var rp = Router.prototype;
 
 rp.constructor = Router;
 
-rp.handleMaps = function () {
-    this.filters = [];  //存放根据key转化的正则
-    this.address = [];  //存放相应的地址
+rp.handleMaps = function (map) {
+    map = map || this.maps;
+    this.filters = this.filters || [];  //存放根据key转化的正则
+    this.address = this.address || [];  //存放相应的地址
 
-    for (var k in this.maps) {
+    for (var k in map) {
         var fil = k.trim();
-        var ad = this.maps[k].trim().split(':' , 2);
 
         fil = fil.charAt(0) == "/" ? fil : ("/" + fil);
-
-        if(ad[0]==="url"){
-            ad[1] = ad[1].replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
-        }
         fil = fil.replace(/\?/g , "\\?").replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
 
-        this.filters.push(fil);
-        this.address.push(ad);
+        var kind = typeof map[k];
+        if(kind == "string"){
+            var ad = map[k].trim().split(':' , 2);
+
+            if(ad[0]==="url"){
+                ad[1] = ad[1].replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
+            }
+        }else if(kind == "function"){
+            ad = ["func", FUN_NAME + SEQ];
+            this.methods[FUN_NAME + SEQ] = map[k];
+            SEQ++;
+        }
+
+        if(fil && ad){
+            this.filters.push(fil);
+            this.address.push(ad);
+        }
     }
+};
+
+rp.setMap = function(maps){
+    for(var k in maps){
+        this.maps[k] = maps[k];
+    }
+
+    this.handleMaps(maps);
 };
 
 rp.set = function (name, func) {
@@ -120,7 +143,7 @@ rp.route = function (req, res) {
     this.error(res);
 };
 
-rp.routeTo = function(req , res , filepath){
+rp.routeTo = function(req , res , filepath , headers){
     var that = this;
     var accept = req.headers['accept-encoding'];
     var etag,times;
@@ -139,6 +162,10 @@ rp.routeTo = function(req , res , filepath){
         'Content-Type': mimes[index+1]+';charset=utf-8',
         'X-Power-By':'Easy-Router'
     };
+
+    for(var k in headers){
+        options[k] = headers[k];
+    }
 
     //如果为资源文件则使用http缓存
     if(that.useCache && /^(js|css|png|jpg|gif)$/.test(fileKind)){
@@ -254,5 +281,6 @@ function getpath(fil, ads, pathname) {
 }
 
 module.exports = function (arg , options) {
-    return new Router(arg , options);
+    router = router || new Router(arg , options);
+    return router;
 };
