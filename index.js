@@ -235,10 +235,19 @@ rp.cache = function(res){
 function getpath(fil, ads, pathname) {
     var filepath = ads;
     var collector = [];
-    if (/__(A|B)__/g.test(fil) && /__(A|B)__/g.test(ads)) {
-        var filArray = fil.split("__");
-        var adsArray = ads.split("__");
-
+    var reg = /__(A|B)__/g;
+    var filok = reg.test(fil);
+    reg.lastIndex = 0;
+    var adsok = reg.test(ads)
+    if (filok && adsok) {
+        fil = fil.replace(reg , function(m){
+            return m.replace(/__/g , ",")
+        });
+        ads = ads.replace(reg , function(m){
+            return m.replace(/__/g , ",")
+        });
+        var filArray = fil.split(",");
+        var adsArray = ads.split(",");
         var index = 0;
 
         //先将不需要匹配的字符过滤掉
