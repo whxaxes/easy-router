@@ -8,6 +8,7 @@ var zlib = require("zlib");
 var mimes = require("./mimes");
 var crypto = require("crypto");
 var stream = require("stream");
+var querystring = require("querystring");
 
 var ALL_FOLDER_REG = /(\/|^)\*\*\//g;
 var ALL_FOLDER_REG_STR = '/([\\w._-]*\/)*';
@@ -106,6 +107,7 @@ rp.route = function (req, res) {
 
     var i = 0;
     var fil , ads , pathname;
+    req.params = urlobj.search ? querystring.parse(urlobj.query) : {};
 
     for (; i < this.filters.length; i++) {
         fil = this.filters[i];
@@ -124,15 +126,9 @@ rp.route = function (req, res) {
                 }
             }else if(ads[0] === "func" && (ads[1] in this.methods)){
                 //如果是func则执行保存在methods里的方法
-                var args = [];
-                for(var i=0;i<=arguments.length;i++){
-                    if(i==2){
-                        args.push(pathname)
-                    }
-                    args.push(arguments[i])
-                }
+                var args = Array.prototype.slice.call(arguments , 0);
+                args.splice(2 , 0 , pathname);
                 this.methods[ads[1]].apply(this , args);
-
                 return;
             }
         }
@@ -233,23 +229,16 @@ rp.cache = function(res){
 
 //该方法是根据路由规则，转换请求路径为文件路径
 function getpath(fil, ads, pathname) {
-    var filepath = ads;
-    var collector = [];
-    var reg = /__(A|B)__/g;
-    var filok = reg.test(fil);
-    reg.lastIndex = 0;
-    var adsok = reg.test(ads)
-    if (filok && adsok) {
-        fil = fil.replace(reg , function(m){
-            return m.replace(/__/g , ",")
-        });
-        ads = ads.replace(reg , function(m){
-            return m.replace(/__/g , ",")
-        });
-        var filArray = fil.split(",");
-        var adsArray = ads.split(",");
-        var index = 0;
+    var filepath = ads , collector = [];
 
+    var reg = /__(A|B)__/g;
+    if (reg.test(fil) && !(reg.lastIndex = 0) && reg.test(ads)) {
+//        将__转成逗号，方便转成数组
+        fil = fil.replace(reg , function(m){return m.replace(/__/g , ",")});
+        ads = ads.replace(reg , function(m){return m.replace(/__/g , ",")});
+        var filArray = fil.split(",") , adsArray = ads.split(",");
+
+        var index = 0;
         //先将不需要匹配的字符过滤掉
         for (var k = 0; k < filArray.length; k++) {
             if (!filArray[k]) continue;
