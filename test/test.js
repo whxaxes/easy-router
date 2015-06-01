@@ -4,13 +4,13 @@ var router = require("../");
 router.setMap({
     "/my/**/*":"func:testFun",
 
-    "index":"url:index.html",
+    "index":"index.html",
 
-    "test?v=*":"url:my*.html",
+    "test?v=*":"my*.html",
 
-    "nihao/**/ho*eo":"url:**/*.html",
+    "nihao/**/ho*eo":"**/*.html",
 
-    "/public/bi*/**/*":"url:public/**/*"
+    "/public/bi*/**/*":"public/**/*"
 });
 
 router.on("notmatch" , function(){
