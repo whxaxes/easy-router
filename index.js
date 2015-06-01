@@ -16,39 +16,11 @@ var ALL_FILES_REG = /\*+/g;
 var ALL_FILES_REG_STR = '[\\w._-]+';
 var noop = function () {};
 var cache = {};
-var router = null;
 
 var FUN_NAME = "easy_router_function_";
 var SEQ = 1000000;
 
-var Router = function (arg , options) {
-    this.methods = {};
-    var defaults = {
-        useZlib:true,
-        useCache:true,
-        maxCacheSize:0.5      //凡是小于maxCacheSize的资源将以文件内容的md5值作为Etag，单位为MB
-    };
-
-    if ((typeof arg == "object") && !(arg instanceof Array)) {
-        this.maps = arg;
-    } else if (typeof arg == "string") {
-        try {
-            var json = fs.readFileSync(arg).toString();
-            this.maps = eval('(' + json + ')');
-        } catch (e) {
-            console.log(e);
-            this.maps = {};
-        }
-    } else {
-        this.maps = {};
-    }
-
-    for (var key in defaults) {
-        this[key] = ((typeof options == "object") && (key in options)) ? options[key] : defaults[key];
-    }
-
-    this.handleMaps();
-};
+function Router(){}
 
 //继承事件类
 util.inherits(Router, events.EventEmitter);
@@ -57,6 +29,24 @@ var rp = Router.prototype;
 
 rp.constructor = Router;
 
+//路由初始化
+rp.init = function(options){
+    this.inited = true;
+    this.methods = {};
+    this.maps = {};
+
+    var defaults = {
+        useZlib:true,
+        useCache:true,
+        maxCacheSize:0.5      //凡是小于maxCacheSize的资源将以文件内容的md5值作为Etag，单位为MB
+    };
+
+    for (var key in defaults) {
+        this[key] = (options && (typeof options == "object") && (key in options)) ? options[key] : defaults[key];
+    }
+};
+
+//处理路由映射表
 rp.handleMaps = function (map) {
     map = map || this.maps;
     this.filters = this.filters || [];  //存放根据key转化的正则
@@ -68,27 +58,42 @@ rp.handleMaps = function (map) {
         fil = fil.charAt(0) == "/" ? fil : ("/" + fil);
         fil = fil.replace(/\?/g , "\\?").replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
 
-        var kind = typeof map[k];
-        if(kind == "string"){
-            var ad = map[k].trim().split(':' , 2);
+        switch (typeof map[k]){
+            case "string":
+                var ad;
+                map[k] = map[k].trim();
 
-            if(ad[0]==="url"){
-                ad[1] = ad[1].replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
-            }
-        }else if(kind == "function"){
-            ad = ["func", FUN_NAME + SEQ];
-            this.methods[FUN_NAME + SEQ] = map[k];
-            SEQ++;
+                if(map[k].indexOf(":")>=0){
+                    ad = map[k].split(':' , 2);
+                }else {
+                    ad = ['url' , map[k]];
+                }
+
+                if(ad[0]==="url"){
+                    ad[1] = ad[1].replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
+                }
+                break;
+
+            case "function":
+                ad = ["func", FUN_NAME + SEQ];
+                this.methods[FUN_NAME + SEQ] = map[k];
+                SEQ++;
+                break;
+
+            default :break;
         }
 
-        if(fil && ad){
-            this.filters.push(fil);
-            this.address.push(ad);
-        }
+        if(!fil || !ad) continue;
+
+        this.filters.push(fil);
+        this.address.push(ad);
     }
 };
 
+//添加设置路由映射表
 rp.setMap = function(maps){
+    if(!this.inited) this.init();
+
     for(var k in maps){
         this.maps[k] = maps[k];
     }
@@ -96,12 +101,14 @@ rp.setMap = function(maps){
     this.handleMaps(maps);
 };
 
+//设置方法
 rp.set = function (name, func) {
     if (!name)return;
 
     this.methods[name] = (func instanceof Function) ? func : noop;
 };
 
+//路由引导方法，放在http.createServer(function(req , res){router.route(req , res)})
 rp.route = function (req, res) {
     var urlobj = url.parse(req.url);
 
@@ -115,30 +122,30 @@ rp.route = function (req, res) {
 
         var reg = new RegExp("^" + fil.replace(/__A__/g, ALL_FOLDER_REG_STR).replace(/__B__/g, ALL_FILES_REG_STR) + "$");
 
-        if (reg.test(pathname = (fil.indexOf("?") >= 0 ? urlobj.path : urlobj.pathname))) {
-            if(ads[0] === "url"){
-                //如果是url则查找相应url的文件
-                var filepath = getpath(fil , ads[1] , pathname);
-                this.emit("path" , filepath , pathname);
-                if(this.routeTo(req , res , filepath)){
-                    this.emit("match", filepath , pathname);
-                    return;
-                }
-            }else if(ads[0] === "func" && (ads[1] in this.methods)){
-                //如果是func则执行保存在methods里的方法
-                var args = Array.prototype.slice.call(arguments , 0);
-                args.splice(2 , 0 , pathname);
-                this.methods[ads[1]].apply(this , args);
+        if (!reg.test(pathname = (fil.indexOf("?") >= 0 ? urlobj.path : urlobj.pathname))) continue;
+
+        if(ads[0] === "url"){
+            //如果是url则查找相应url的文件
+            var filepath = getpath(fil , ads[1] , pathname);
+            this.emit("path" , filepath , pathname);
+            if(this.routeTo(req , res , filepath)){
+                this.emit("match", filepath , pathname);
                 return;
             }
+        }else if(ads[0] === "func" && (ads[1] in this.methods)){
+            //如果是func则执行保存在methods里的方法
+            var args = Array.prototype.slice.call(arguments , 0);
+            args.splice(2 , 0 , pathname);
+            this.methods[ads[1]].apply(this , args);
+            return;
         }
     }
 
     this.emit("notmatch");
-
     this.error(res);
 };
 
+//根据路径引导路由至相应文件
 rp.routeTo = function(req , res , filepath , headers){
     var that = this;
     var accept = req.headers['accept-encoding'];
@@ -216,12 +223,14 @@ rp.routeTo = function(req , res , filepath , headers){
     return true;
 };
 
+//404错误
 var motions = ["(๑¯ิε ¯ิ๑)" , "(●′ω`●)" , "=皿=!" , "(ง •̀_•́)ง┻━┻" , "┑(￣Д ￣)┍" , "覀L覀"];
 rp.error = function(res){
     res.writeHead(404 , {'content-type':'text/html;charset=utf-8'});
     res.end('<div style="text-align: center;font: 20px \'微软雅黑\';line-height: 100px;color: red;">404 Not Found&nbsp;&nbsp;&nbsp;'+motions[Math.floor(Math.random()*motions.length)]+'</div>');
 };
 
+//304缓存
 rp.cache = function(res){
     res.writeHead(304);
     res.end();
@@ -278,7 +287,6 @@ function getpath(fil, ads, pathname) {
     return filepath;
 }
 
-module.exports = function (arg , options) {
-    router = router || new Router(arg , options);
-    return router;
-};
+var router = new Router();
+
+module.exports = router;

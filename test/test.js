@@ -1,5 +1,7 @@
 var stream = require("stream");
-var router = require("./../index")({
+var router = require("../");
+
+router.setMap({
     "/my/**/*":"func:testFun",
 
     "index":"url:index.html",
@@ -25,7 +27,7 @@ router.on("error" , function(err){
 });
 
 router.set("testFun" , function(req , res , requestpath){
-    console.log("请求路径："+requestpath);
+    console.log("请求路径：" + requestpath);
     console.log("执行方法：testFun");
 });
 
