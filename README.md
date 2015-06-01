@@ -19,7 +19,9 @@
     http.createServer(function(req , res){
         router.route(req , res);
     })
-  
+
+###我的[node-test项目](https://github.com/whxaxes/node-test)使用了该路由，具体用法可见node-test项目代码。
+
 ##API
 ###router.init(options);
 初始化路由，可以不执行。执行setMap的时候router会检测有无初始化，若尚未初始化则自动初始化
