@@ -14,27 +14,18 @@
     var creeper = require('./creeper/creeper');
     var tdata = require('./transdata/tdata');
     
-    //路由表，可以使用*进行字符匹配
+    //路由表，可以使用通配符*匹配
+    //匹配的可以为url，若为url则在前面加url:关键词，如果为func:或者直接为function，则访问该路由时会调用该方法
+    //如果使用func:，需要在后面使用set设置方法。
     var routerMaps = {
-    //  bigpipe
-        "bigpipe": "func:bigpipe",
-    
-    //  pjax
-        "pjax/*.html": "func:pjax",
-    
-    //  creeper
+        "bigpipe": bigpipe,
+        "pjax/*.html": pjax,
         "creeper": "func:creeper",
-    
-    //  upload file
         "uindex": "url:upload/index.html",
         "upl": "url:upload/upload.html",
-        "getProgress": "func:getProgress",
-        "upload": "func:upload",
-    
-    //    静态资源
+        "getProgress": getProgress,
+        "upload": upload,
         "/public/**/*":"url:../public/**/*",
-    
-    //  transdata
         "transdata": "url:transdata/request.html",
         "tdata": "func:tdata"
     }
@@ -43,10 +34,6 @@
     var router = Router(routerMaps);
     
     //设置上面需要用到的function
-    router.set('bigpipe' , bigpipe);
-    router.set('pjax' , pjax);
-    router.set('getProgress' , getProgress);
-    router.set('upload' , upload);
     router.set('creeper' , creeper);
     router.set('tdata' , tdata);
     
@@ -56,3 +43,5 @@
     }).listen(9030);
     
     console.log("服务启动成功...");
+
+router只会实例化一次，在其他模块中，也可以直接引用router，对router.setMaps可以添加路由。
