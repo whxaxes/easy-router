@@ -102,6 +102,7 @@ rp.setMap = function(maps){
         }
     }else if(mapKind == "string" && arguments.length == 2){
         this.maps[maps] = arguments[1];
+        maps = {maps : arguments[1]}
     }else {
         return;
     }
