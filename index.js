@@ -94,8 +94,16 @@ rp.handleMaps = function (map) {
 rp.setMap = function(maps){
     if(!this.inited) this.init();
 
-    for(var k in maps){
-        this.maps[k] = maps[k];
+    var mapKind = typeof maps;
+
+    if(mapKind == "object" && !(maps instanceof Array)){
+        for(var k in maps){
+            this.maps[k] = maps[k];
+        }
+    }else if(mapKind == "string" && arguments.length == 2){
+        this.maps[maps] = arguments[1];
+    }else {
+        return;
     }
 
     this.handleMaps(maps);
