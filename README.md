@@ -33,7 +33,8 @@
         router.route(req , res);
     }).listen(9030);
 
-###router只会实例化一次，在其他模块中，也可以直接引用router，对router.setMaps可以添加路由
+###router只会实例化一次。
+###在其他模块中引用router，使用router.setMaps可以添加路由
     var router = require("easy-router")();//因为返回的是方法，所以需要执行才能获取router对象
     
     router.setMap({
