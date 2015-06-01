@@ -20,7 +20,7 @@
         router.route(req , res);
     })
 
-###我的[node-test项目](https://github.com/whxaxes/node-test)使用了该路由，具体用法可见node-test项目代码。
+我的[node-test项目](https://github.com/whxaxes/node-test)使用了该路由模块，具体用法可见node-test项目代码。
 
 ##API
 ###router.init(options);
