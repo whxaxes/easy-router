@@ -26,11 +26,11 @@
 ###router.init(options);
 初始化路由，可以不执行。执行setMap的时候router会检测有无初始化，若尚未初始化则自动初始化
 
-###router.setMap
+###router.setMap(maps);
 添加路由映射
 
-###router.routeTo(req , res , filepath , headers)
+###router.routeTo(req , res , filepath , headers);
 根据路径引导路由至相应文件，可以添加响应头headers
 
-###router.error(res)
+###router.error(res);
 定向至错误页面
