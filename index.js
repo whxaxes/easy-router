@@ -48,19 +48,15 @@ rp.init = function(options){
 
 //处理路由映射表
 rp.handleMaps = function (map) {
+    var that = this;
     map = map || this.maps;
     this.filters = this.filters || [];  //存放根据key转化的正则
     this.address = this.address || [];  //存放相应的地址
+    var ad;
 
     for (var k in map) {
-        var fil = k.trim();
-
-        fil = fil.charAt(0) == "/" ? fil : ("/" + fil);
-        fil = fil.replace(/\?/g , "\\?").replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
-
         switch (typeof map[k]){
             case "string":
-                var ad;
                 map[k] = map[k].trim();
 
                 if(map[k].indexOf(":")>=0){
@@ -82,11 +78,16 @@ rp.handleMaps = function (map) {
 
             default :break;
         }
+        if (!ad)continue;
 
-        if(!fil || !ad) continue;
+        k.split(",").forEach(function(f){
+            var fil = f.trim();
+            fil = fil.charAt(0) == "/" ? fil : ("/" + fil);
+            fil = fil.replace(/\?/g, "\\?").replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
 
-        this.filters.push(fil);
-        this.address.push(ad);
+            that.filters.push(fil);
+            that.address.push(ad);
+        });
     }
 };
 
