@@ -10,6 +10,8 @@
     router.setMap({
         "/topic/*":"./pratice/topic_*.html",      //页面访问
         
+        "* , *_360 , *_baidu":"html/Topic/*.html",
+        
         "/public/**/*":"../public/biz009/**/*"        //静态资源
         
         "/runMethod":function(req , res){       //执行方法
