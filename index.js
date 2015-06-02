@@ -121,6 +121,8 @@ rp.set = function (name, func) {
 
 //路由引导方法，放在http.createServer(function(req , res){router.route(req , res)})
 rp.route = function (req, res) {
+    if(!this.inited) this.init();
+
     var urlobj = url.parse(req.url);
 
     var i = 0;
