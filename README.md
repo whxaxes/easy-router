@@ -1,6 +1,6 @@
 # easy-router
 
-##可以使用通配符的简易路由
+##可以使用通配符的简易路由，可以快速构建服务，用于本地项目测试
 
 ##Install
     npm install easy-router
@@ -20,7 +20,7 @@
     })
     http.createServer(function(req , res){
         router.route(req , res);
-    })
+    }).listen(3030)
 
 我的[node-test项目](https://github.com/whxaxes/node-test)使用了该路由模块，具体用法可见node-test项目代码。
 
