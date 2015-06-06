@@ -1,6 +1,6 @@
 # easy-router
 
-##可以使用通配符的简易路由，可以快速构建服务，用于本地项目测试
+###简易路由，可以快速构建服务，本地项目测试
 
 ##Install
     npm install easy-router
