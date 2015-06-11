@@ -34,6 +34,8 @@ rp.init = function(options){
     this.inited = true;
     this.methods = {};
     this.maps = {};
+    this.filters = [];//存放根据key转化的正则
+    this.address = [];//存放相应的地址
 
     var defaults = {
         useZlib:true,
@@ -50,10 +52,8 @@ rp.init = function(options){
 rp.handleMaps = function (map) {
     var that = this;
     map = map || this.maps;
-    this.filters = this.filters || [];  //存放根据key转化的正则
-    this.address = this.address || [];  //存放相应的地址
-    var ad;
 
+    var ad;
     for (var k in map) {
         switch (typeof map[k]){
             case "string":
