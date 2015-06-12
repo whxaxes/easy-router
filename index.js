@@ -54,13 +54,13 @@ rp.init = function(options){
 //如果调用listen方法，则直接启动服务
 rp.listen = function(port){
     var that = this;
-    http.createServer(function(req , res){
+    var server = http.createServer(function(req , res){
         that.route(req , res);
     }).listen(port);
 
     console.log("服务启动，监听"+port+"端口中...");
 
-    return this;
+    return server;
 };
 
 //处理路由映射表

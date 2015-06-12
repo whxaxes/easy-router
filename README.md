@@ -32,11 +32,14 @@
 我的[node-test项目](https://github.com/whxaxes/node-test)使用了该路由模块，具体用法可见node-test项目代码。
 
 ##API
+###router.listen(port);
+监听端口，该方法返回http server对象
+
 ###router.init(options);
 初始化路由，可以不执行。执行setMap的时候router会检测有无初始化，若尚未初始化则自动初始化
 
 ###router.setMap(maps);
-添加路由映射
+添加路由映射，该方法返回router对象
 
 ###router.routeTo(req , res , filepath , headers);
 根据路径引导路由至相应文件，可以添加响应头headers
