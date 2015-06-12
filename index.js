@@ -12,9 +12,9 @@ var stream = require("stream");
 var querystring = require("querystring");
 
 var ALL_FOLDER_REG = /(?:\/|^)\*\*\//g;
-var ALL_FOLDER_REG_STR = '/(?:[\\w._-]*\/)*';
+var ALL_FOLDER_REG_STR = '/(?:[\\w\\u4e00-\\u9fa5._-]*\/)*';
 var ALL_FILES_REG = /\*+/g;
-var ALL_FILES_REG_STR = '[\\w._-]+';
+var ALL_FILES_REG_STR = '[\\w\\u4e00-\\u9fa5._-]+';
 var noop = function () {};
 var cache = {};
 
@@ -156,7 +156,7 @@ rp.route = function (req, res) {
         fil = this.filters[i];
         ads = this.address[i];
 
-        if (!fil[1].test(pathname = (fil[0].indexOf("?") >= 0 ? urlobj.path : urlobj.pathname))) continue;
+        if (!fil[1].test(pathname = decodeURI(fil[0].indexOf("?") >= 0 ? urlobj.path : urlobj.pathname))) continue;
 
         if(ads[0] === "url"){
             //如果是url则查找相应url的文件
