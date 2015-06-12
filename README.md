@@ -6,6 +6,13 @@
     npm install easy-router
 
 ##Usage
+最快捷用法
+
+    var router = require("easy-router");
+    router.setMap('**/**' , '**/*').listen(3030);
+    
+如果你希望是接入自己创建的http，只需要使用route方法  
+
     var router = require("easy-router");
     router.setMap({
         "/topic/*":"./pratice/topic_*.html",      //页面访问
