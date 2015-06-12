@@ -1,4 +1,5 @@
 "use strict";
+var http = require("http");
 var fs = require("fs");
 var url = require("url");
 var events = require("events");
@@ -46,6 +47,20 @@ rp.init = function(options){
     for (var key in defaults) {
         this[key] = (options && (typeof options == "object") && (key in options)) ? options[key] : defaults[key];
     }
+
+    return this;
+};
+
+//如果调用listen方法，则直接启动服务
+rp.listen = function(port){
+    var that = this;
+    http.createServer(function(req , res){
+        that.route(req , res);
+    }).listen(port);
+
+    console.log("服务启动，监听"+port+"端口中...");
+
+    return this;
 };
 
 //处理路由映射表
@@ -116,6 +131,8 @@ rp.setMap = function(maps){
     }
 
     this.handleMaps(maps);
+
+    return this;
 };
 
 //设置方法
