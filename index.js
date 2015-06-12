@@ -88,7 +88,7 @@ rp.handleMaps = function (maps) {
 
             case "function":
                 ad = ["func", FUN_NAME + SEQ];
-                this.methods[FUN_NAME + SEQ] = map;
+                that.methods[FUN_NAME + SEQ] = map;
                 SEQ++;
                 break;
 
