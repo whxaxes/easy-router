@@ -14,12 +14,12 @@ router.setMap({
 });
 
 router.on("notmatch" , function(){
-    console.log('not match');
+    console.log('not match\n');
 });
 
 router.on("path" , function(path , requestpath){
     console.log("请求路径："+requestpath);
-    console.log("路由转换： "+path);
+    console.log("路由转换： "+path+"\n");
 });
 
 router.on("error" , function(err){
@@ -28,35 +28,14 @@ router.on("error" , function(err){
 
 router.set("testFun" , function(req , res , requestpath){
     console.log("请求路径：" + requestpath);
-    console.log("执行方法：testFun");
+    console.log("执行方法：testFun\n");
 });
 
-describe("check" , function(){
-    it("test1" , function(done){
-        test("/public/biz009/stylesheets/css/man.css");
-        done();
-    });
-
-    it("test2" , function(done){
-        test("/my/1/2/3/4/abs.html?v=22");
-        done();
-    });
-
-    it("test3" , function(done){
-        test("/index");
-        done();
-    });
-
-    it("test4" , function(done){
-        test("/test?v=index");
-        done();
-    });
-
-    it("test5" , function(done){
-        test("/nihao/asd/asd/asd/homemeeo");
-        done();
-    });
-});
+test("/public/biz009/stylesheets/css/man.css");
+test("/my/1/2/3/4/abs.html?v=22");
+test("/index");
+test("/test?v=index");
+test("/nihao/asd/asd/asd/homemeeo"); 
 
 function test(url){
     var res = new stream.Writable();
