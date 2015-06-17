@@ -1,4 +1,5 @@
 "use strict";
+
 var http = require("http");
 var fs = require("fs");
 var url = require("url");
@@ -6,10 +7,12 @@ var events = require("events");
 var util = require("util");
 var path = require("path");
 var zlib = require("zlib");
-var mimes = require("./mimes");
 var crypto = require("crypto");
 var stream = require("stream");
 var querystring = require("querystring");
+
+var mimes = require("./mimes");
+var color = require("./color");
 
 var ALL_FOLDER_REG = /(?:\/|^)\*\*\//g;
 var ALL_FOLDER_REG_STR = '/(?:[\\w\\u4e00-\\u9fa5._-]*\/)*';
@@ -45,7 +48,7 @@ rp.init = function(options){
     };
 
     for (var key in defaults) {
-        this[key] = (options && (typeof options == "object") && (key in options)) ? options[key] : defaults[key];
+        this[key] = (isObject(options) && (key in options)) ? options[key] : defaults[key];
     }
 
     return this;
@@ -58,7 +61,7 @@ rp.listen = function(port){
         that.route(req , res);
     }).listen(port);
 
-    console.log("服务启动，监听"+port+"端口中...");
+    console.log("服务启动，监听" + color(port, "green") + "端口中...");
 
     return server;
 };
@@ -71,31 +74,25 @@ rp.handleMaps = function (maps) {
     var ad;
 
     each(maps , function(map , k){
-        switch (typeof map){
-            case "string":
-                map = map.trim();
+        if (isString(map)) {
+            map = map.trim();
 
-                if(map.indexOf(":")>=0){
-                    ad = map.split(':' , 2);
-                }else {
-                    ad = ['url' , map];
-                }
+            if (map.indexOf(":") >= 0) {
+                ad = map.split(':', 2);
+            } else {
+                ad = ['url', map];
+            }
 
-                if(ad[0]==="url"){
-                    ad[1] = ad[1].replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
-                }
-                break;
-
-            case "function":
-                ad = ["func", FUN_NAME + SEQ];
-                that.methods[FUN_NAME + SEQ] = map;
-                SEQ++;
-                break;
-
-            default :break;
+            if (ad[0] === "url") {
+                ad[1] = ad[1].replace(ALL_FOLDER_REG, '__A__').replace(ALL_FILES_REG, '__B__');
+            }
+        } else if (isFunction(map)) {
+            ad = ["func", FUN_NAME + SEQ];
+            that.methods[FUN_NAME + SEQ] = map;
+            SEQ++;
+        } else {
+            return;
         }
-
-        if (!ad) return;
 
         each(k.split(",") , function(f){
             f = f.trim();
@@ -115,13 +112,11 @@ rp.handleMaps = function (maps) {
 rp.setMap = function(maps){
     if(!this.inited) this.init();
 
-    var mapKind = typeof maps;
-
-    if(mapKind == "object" && !(maps instanceof Array)){
+    if(isObject(maps) && !isArray(maps)){
         for(var k in maps){
             this.maps[k] = maps[k];
         }
-    }else if(mapKind == "string" && arguments.length == 2){
+    }else if(isString(maps) && arguments.length == 2){
         this.maps[maps] = arguments[1];
         var key = maps;
         maps = {};
@@ -156,7 +151,7 @@ rp.route = function (req, res) {
         fil = this.filters[i];
         ads = this.address[i];
 
-        if (!fil[1].test(pathname = decodeURI(fil[0].indexOf("?") >= 0 ? urlobj.path : urlobj.pathname))) continue;
+        if (!fil[1].test(pathname = decodeURI(fil[0].indexOf("?") >= 0 ? urlobj.path : urlobj.pathname)))continue;
 
         if(ads[0] === "url"){
             //如果是url则查找相应url的文件
@@ -175,6 +170,8 @@ rp.route = function (req, res) {
             return;
         }
     }
+
+    console.log(color("404 get "+req.url , "gray"));
 
     this.emit("notmatch");
 
@@ -212,22 +209,23 @@ rp.routeTo = function(req , res , filepath , headers){
         times = String(stats.mtime).replace(/\([^\x00-\xff]+\)/g , "").trim();
 
         //先判断文件更改时间
-        if(req.headers['if-modified-since']==times){
+        if (req.headers['if-modified-since'] == times) {
             that.cache(res);
             return true;
         }
 
         //如果文件小于一定值，则直接将文件内容的md5值作为etag值
         var hash = crypto.createHash("md5");
-        if(~~(stats.size/1024/1024) <= +that.maxCacheSize){
-            etag = '"'+stats.size+'-'+hash.update(fs.readFileSync(filepath)).digest("hex").substring(0,10)+'"';
-        }else {
-            etag = 'W/"'+stats.size+'-'+hash.update(times).digest("hex").substring(0,10)+'"';
+        if (~~(stats.size / 1024 / 1024) <= +that.maxCacheSize) {
+            etag = '"' + stats.size + '-' + hash.update(fs.readFileSync(filepath)).digest("hex").substring(0, 10) + '"';
+        } else {
+            etag = 'W/"' + stats.size + '-' + hash.update(times).digest("hex").substring(0, 10) + '"';
         }
 
         //如果文件更改时间发生了变化，再判断etag
         if(req.headers['if-none-match'] === etag){
             that.cache(res);
+            console.log(color("304 cache " + filepath , "yellow"))
             return true;
         }
 
@@ -236,6 +234,8 @@ rp.routeTo = function(req , res , filepath , headers){
     }else {
         options['Cache-Control'] = 'no-cache';
     }
+
+    console.log(color("200 get " + filepath , "green"))
 
     //如果为文本文件则使用zlib压缩
     if(that.useZlib && /^(?:js|css|html)$/.test(fileKind)){
@@ -254,6 +254,7 @@ rp.routeTo = function(req , res , filepath , headers){
     }
 
     res.writeHead(200, options);
+
     source.pipe(res);
 
     return true;
@@ -329,9 +330,25 @@ function isAB(msg){
     return /^(?:A|B)$/.test(msg);
 }
 
+function isObject(obj){
+    return !!obj && typeof obj === 'object';
+}
+
+function isArray(obj){
+    return toString.call(obj) === "[object Array]";
+}
+
+function isString(msg){
+    return typeof msg === "string" || false;
+}
+
+function isFunction(func){
+    return typeof func === "function" || false;
+}
+
 //遍历方法
 function each(arg , callback){
-    if(!(typeof arg == "object"))return;
+    if(!arg || !(typeof arg == "object"))return;
 
     if(arg instanceof Array){
         arg.forEach(callback);
