@@ -47,7 +47,8 @@
 ###router.error(res);
 定向至错误页面
 
-##options
+<br>
+##Options
 上面init方法传的参数：
 ###debug
 默认值为false，如果设为true，当设置类似于：
