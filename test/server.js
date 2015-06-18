@@ -1,3 +1,3 @@
 var router = require("../");
 
-router.setMap('**/*' , "**/*").listen(1234);
+router.init({debug:true}).setMap('**/*' , "**/*").listen(1234);
