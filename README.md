@@ -55,7 +55,7 @@
 
         {"**/*":"**/*"} 或 {"**/*":"**/*.js"}
         
-当我访问某个目录而非文件时，easy-router将会将该目录下的所有匹配的文件夹和文件输出，比如我访问http://localhost:9030/html/，easy-router将会将html目录下的所有文件夹和文件以a标签的形式放在html中输出到浏览器。方便选择性访问。
+当我访问某个目录而非文件时，easy-router将会将该目录下的所有匹配的文件夹和文件输出，比如我访问`http://localhost:9030/html/`，easy-router将会将html目录下的所有文件夹和文件以a标签的形式放在html中输出到浏览器。方便选择性访问。
 
 ###useCache
 默认值为false，是否使用简易http缓存
