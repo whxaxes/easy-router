@@ -1,6 +1,6 @@
 {
   "name": "easy-router",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "npm install easy-router",
   "main": "index.js",
   "directories": {
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/whxaxes/easy-router.git"
+    "url": "git+https://github.com/whxaxes/easy-router.git"
   },
   "author": "wanghx",
   "license": "MIT",

@@ -13,6 +13,8 @@ router.setMap({
     "/public/bi*/**/*":"public/**/*"
 });
 
+console.log(router.getFolderList("../test/" , /.*/g));
+
 router.on("notmatch" , function(){
     console.log('not match\n');
 });
