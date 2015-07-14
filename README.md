@@ -12,12 +12,15 @@ npm install easy-router -g
 ```
 则可以直接在项目目录下打开cmd命令窗口：输入：`eroute`按回车即可开启服务<br>
 默认端口为`33750`，如果输入命令时添加端口号：`eroute 9030`，则会使用命令里的端口，如果当前端口被占用，则会自动分配一个可用端口<br>
+![image](http://whxaxes.github.io/easy-router/images/test2.jpg "test")
+
 
 引用文件示例：最快捷用法
 ```
 var router = require("easy-router");
 router.setMap('**/**' , '**/*').listen(3030);
 ```
+
 如果你希望是接入自己创建的http，只需要使用route方法  
 ```
 var router = require("easy-router");
@@ -66,7 +69,7 @@ http.createServer(function(req , res){
 当我访问某个目录而非文件时，easy-router将会将该目录下的所有匹配的文件夹和文件输出，比如我访问`http://localhost:9030/html/`，
 easy-router将会将html目录下的所有文件夹和文件以a标签的形式放在html中输出到浏览器。方便选择性访问。<br>
 如：<br>
-![image](http://wanghx.cn:9030/public/gitImage/test.jpg "test")
+![image](http://whxaxes.github.io/easy-router/images/test.jpg "test")
 
 
 
