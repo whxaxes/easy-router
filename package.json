@@ -1,6 +1,6 @@
 {
   "name": "easy-router",
-  "version": "2.0.16",
+  "version": "2.1.0",
   "description": "npm install easy-router",
   "bin": {
     "router": "bin/start"
@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/whxaxes/easy-router/issues"
   },
-  "homepage": "https://github.com/whxaxes/easy-router"
+  "homepage": "https://github.com/whxaxes/easy-router",
+  "dependencies": {
+    "node-run": "*"
+  }
 }

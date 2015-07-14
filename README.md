@@ -3,25 +3,39 @@
 ### 简易路由，可以快速构建服务，本地项目测试
 
 ## Install
-    npm install easy-router
-
-## Usage
-如果安装到全局
+```
+npm install easy-router
+```
+或
 ```
 npm install easy-router -g
 ```
+
+## Usage
+
+### 全局使用
+如果全局安装了easy-router<br>
 则可以直接在项目目录下打开cmd命令窗口：输入：`router`按回车即可开启服务<br>
-默认端口为`33750`，如果输入命令时添加端口号：`router 9030`，则会使用命令里的端口，如果当前端口被占用，则会自动分配一个可用端口<br>
+默认端口为`33750`，如果输入命令时添加端口号：`router 9030`，则会使用命令里的端口<br>
+
+> 如果当前端口被占用，则会自动分配一个可用端口
+
 ![image](http://whxaxes.github.io/easy-router/images/test2.jpg "test")
 
+除了在router后面接端口启动服务外，组件引入了[node-run](https://github.com/whxaxes/wheels/tree/master/node-run)，可以直接启动nodejs文件，同时监听文件改动而重启服务<br>
+```
+router app.js
+```
 
-引用文件示例：最快捷用法
+
+### 文件中引用
+最快捷用法
 ```
 var router = require("easy-router");
 router.setMap('**/**' , '**/*').listen(3030);
 ```
 
-如果你希望是接入自己创建的http，只需要使用route方法  
+如果希望是接入自己创建的http，只需要使用route方法  
 ```
 var router = require("easy-router");
 router.setMap({
@@ -34,13 +48,14 @@ router.setMap({
     "/runMethod":function(req , res){       //执行方法
         res.end("test")
     }
-})
-```
+});
+
 http.createServer(function(req , res){
     router.route(req , res);
 }).listen(3030)
+```
 
-我的[node-test项目](https://github.com/whxaxes/node-test)使用了该路由模块，具体用法可见node-test项目代码。
+我的[node-test项目](https://github.com/whxaxes/node-test)使用了该路由模块，可参考node-test项目代码。
 
 ## API
 ### router.listen(port);
