@@ -1,9 +1,9 @@
 {
   "name": "easy-router",
-  "version": "2.0.15",
+  "version": "2.0.16",
   "description": "npm install easy-router",
   "bin": {
-    "eroute": "bin/start"
+    "router": "bin/start"
   },
   "main": "index.js",
   "directories": {

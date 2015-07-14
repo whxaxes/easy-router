@@ -10,8 +10,8 @@
 ```
 npm install easy-router -g
 ```
-则可以直接在项目目录下打开cmd命令窗口：输入：`eroute`按回车即可开启服务<br>
-默认端口为`33750`，如果输入命令时添加端口号：`eroute 9030`，则会使用命令里的端口，如果当前端口被占用，则会自动分配一个可用端口<br>
+则可以直接在项目目录下打开cmd命令窗口：输入：`router`按回车即可开启服务<br>
+默认端口为`33750`，如果输入命令时添加端口号：`router 9030`，则会使用命令里的端口，如果当前端口被占用，则会自动分配一个可用端口<br>
 ![image](http://whxaxes.github.io/easy-router/images/test2.jpg "test")
 
 
