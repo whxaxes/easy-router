@@ -8,12 +8,14 @@ router.setMap({
 
     "test?v=*":"my*.html",
 
+    "test#!*":"*.html",
+
     "nihao/**/ho*eo":"**/*.html",
 
     "/public/bi*/**/*":"public/**/*"
 });
 
-console.log(router.getFolderList("../test/" , /.*/g));
+console.log(router._getFolderList("../test/" , true));
 
 router.on("notmatch" , function(){
     console.log('not match\n');
@@ -37,6 +39,7 @@ test("/public/biz009/stylesheets/css/man.css");
 test("/my/1/2/3/4/abs.html?v=22");
 test("/index");
 test("/test?v=index");
+test("/test#!index");
 test("/nihao/asd/asd/asd/homemeeo"); 
 
 function test(url){
