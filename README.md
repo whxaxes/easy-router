@@ -21,8 +21,8 @@ npm install easy-router -g
 ![image](http://whxaxes.github.io/easy-router/images/test2.jpg "test")
 
 ##### 访问服务
-启动服务后，访问:http://localhost:33750/ 即可看到网站根目录的文件列表<br>
-如果输入filename为/:keyword，则会列出文件名内含keyword字符的文件/文件夹，如果keyword为空则会列出全部文件/文件夹<br>
+启动服务后，访问:`http://localhost:33750/` 即可看到网站根目录的文件列表<br>
+如果输入filename为`/:keyword`，则会列出文件名内含`keyword`字符的文件/文件夹，如果`keyword`为空则会列出全部文件/文件夹<br>
 ![image](http://whxaxes.github.io/easy-router/images/test4.jpg "test")
 
 ##### 其他启动方式
