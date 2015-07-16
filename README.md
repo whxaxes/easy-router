@@ -94,3 +94,7 @@ easy-router将会将html目录下的所有文件夹和文件以a标签的形式�
 
 ### useZlib
 默认值为true，是否开启gzip压缩
+
+## License
+
+MIT.
