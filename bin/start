@@ -19,7 +19,7 @@ if(args[2]){
 router.init({debug:true}).setMap('**/*' , "**/*")
 
 router.listen(port , function(err){
-    if(err.message=="listen EADDRINUSE"){
+    if(err.message.indexOf("listen")>=0){
         this.listen(0)
     }
 });
