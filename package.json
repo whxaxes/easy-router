@@ -1,6 +1,6 @@
 {
   "name": "easy-router",
-  "version": "2.1.4",
+  "version": "2.1.6",
   "description": "npm install easy-router",
   "bin": {
     "router": "bin/start"
