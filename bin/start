@@ -3,23 +3,21 @@
 var router = require("../");
 var runner = require("node-run");
 
-var server;
-var port = 33750;
+var port = process.env.PORT || 33750;
 var args = process.argv;
 
-if(args[2]){
-    if(/^\d+$/g.test(args[2])){
-        port = args[2];
-    }else {
-        runner(args[2]);
-        return;
-    }
+if (args[2]) {
+  if (/^\d+$/g.test(args[2])) {
+    port = args[2];
+  } else {
+    runner(args[2]);
+  }
 }
 
-router.init({debug:true}).setMap('**/*' , "**/*")
+router.init({debug: true, maps: {'**/*': '**/*'}});
 
-router.listen(port , function(err){
-    if(err.message.indexOf("listen")>=0){
-        this.listen(0)
-    }
+router.listen(port, function(err) {
+  if (err.message.indexOf("listen") >= 0) {
+    this.listen(0)
+  }
 });

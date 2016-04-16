@@ -1,6 +1,6 @@
 {
   "name": "easy-router",
-  "version": "2.1.6",
+  "version": "2.2.0",
   "description": "npm install easy-router",
   "bin": {
     "router": "bin/start"
@@ -10,7 +10,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test",
+    "cover": "make cover"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,12 @@
   "homepage": "https://github.com/whxaxes/easy-router",
   "dependencies": {
     "node-run": "*"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.3",
+    "mocha": "^2.4.5",
+    "pedding": "^1.0.0",
+    "supertest": "^1.2.0"
   }
 }

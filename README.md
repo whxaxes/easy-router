@@ -2,6 +2,10 @@
 
 ### 简易路由，可以快速构建服务，本地项目测试
 
+[![NPM version][npm-image]][npm-url]
+[![Build Status][travis-image]][travis-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
+
 ## Install
 ```
 npm install easy-router
@@ -33,12 +37,12 @@ router app.js
 <br><br>
 ##### 在文件内中也可以引用，最快捷用法
 ```
-var router = require("easy-router");
+var router = require("easy-router")();
 router.setMap('**/**' , '**/*').listen(3030);
 ```
 ##### 使用route方法接入自己创建的http
 ```
-var router = require("easy-router");
+var router = require("easy-router")();
 router.setMap({
     "/topic/*":"./pratice/topic_*.html",      //页面访问
 
@@ -87,7 +91,11 @@ easy-router将会将html目录下的所有文件夹和文件以a标签的形式�
 如：<br>
 ![image](http://whxaxes.github.io/easy-router/images/test.jpg "test")
 
+### root
+项目根目录, 默认为./
 
+### maps
+路由表, 可以在初始化时传入相应路由表
 
 ### useCache
 默认值为false，是否使用简易http缓存
@@ -95,6 +103,18 @@ easy-router将会将html目录下的所有文件夹和文件以a标签的形式�
 ### useZlib
 默认值为true，是否开启gzip压缩
 
+## Running Test
+```
+make test
+```
+
 ## License
 
 MIT.
+
+[npm-url]: https://npmjs.org/package/easy-router
+[npm-image]: http://img.shields.io/npm/v/easy-router.svg?style=flat-square
+[travis-url]: https://travis-ci.org/whxaxes/easy-router
+[travis-image]: http://img.shields.io/travis/whxaxes/easy-router.svg?style=flat-square
+[coveralls-url]: https://coveralls.io/r/whxaxes/easy-router
+[coveralls-image]: https://img.shields.io/coveralls/whxaxes/easy-router.svg?style=flat-square
