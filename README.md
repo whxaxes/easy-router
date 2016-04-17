@@ -1,10 +1,10 @@
 # easy-router
 
-### 简易路由，可以快速构建服务，本地项目测试
-
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
+
+### 简易路由，可以快速构建服务，本地项目测试
 
 ## Install
 ```
@@ -16,27 +16,7 @@ npm install easy-router -g
 ```
 
 ## Usage
-##### 启动服务（需全局安装easy-router）<br>
-在项目目录下打开cmd命令窗口：输入：`router`按回车即可开启服务<br>
-默认端口为`33750`，如果输入命令时添加端口号：`router 9030`，则会使用命令里的端口<br>
-
-> 如果当前端口被占用，则会自动分配一个可用端口
-
-![image](http://whxaxes.github.io/easy-router/images/test2.jpg "test")
-
-##### 访问服务
-启动服务后，访问:`http://localhost:33750/` 即可看到网站根目录的文件列表<br>
-如果输入filename为`/:keyword`，则会列出文件名内含`keyword`字符的文件/文件夹，如果`keyword`为空则会列出全部文件/文件夹<br>
-![image](http://whxaxes.github.io/easy-router/images/test4.jpg "test")
-
-##### 其他启动方式
-除了在router后面接端口启动服务外，组件引入了[node-run](https://github.com/whxaxes/wheels/tree/master/node-run)，可以直接启动nodejs文件，同时监听文件改动而重启服务<br>
-```
-router app.js
-```
-<br><br>
-##### 在文件内中也可以引用，最快捷用法
-
+##### 快速创建http服务
 ```javascript
 var Router = require("easy-router");
 Router().setMap('**/**' , '**/*').listen(3030)
@@ -66,6 +46,26 @@ http.createServer(function(req , res){
 }).listen(3030)
 
 ```
+
+##### 还可以命令行启动服务（需全局安装easy-router）<br>
+在项目目录下打开cmd命令窗口：输入：`router`按回车即可开启服务<br>
+默认端口为`33750`，如果输入命令时添加端口号：`router 9030`，则会使用命令里的端口<br>
+
+> 如果当前端口被占用，则会自动分配一个可用端口
+
+![image](http://whxaxes.github.io/easy-router/images/test2.jpg "test")
+
+##### 访问服务
+启动服务后，访问:`http://localhost:33750/` 即可看到网站根目录的文件列表<br>
+如果输入filename为`/:keyword`，则会列出文件名内含`keyword`字符的文件/文件夹，如果`keyword`为空则会列出全部文件/文件夹<br>
+![image](http://whxaxes.github.io/easy-router/images/test4.jpg "test")
+
+##### 其他启动方式
+除了在router后面接端口启动服务外，组件引入了[node-run](https://github.com/whxaxes/wheels/tree/master/node-run)，可以直接启动nodejs文件，同时监听文件改动而重启服务<br>
+```
+router app.js
+```
+<br><br>
 
 ## API
 ### Router(options)
