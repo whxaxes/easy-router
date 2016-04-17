@@ -1,28 +1,21 @@
 #! /usr/bin/env node
 
-var runner = require("node-run");
 var router = require("../")({
   debug: true,
-  maps: {'**/*': '**/*'}
+  maps: {
+    "**/*": "**/*"
+  }
 });
 
 var port = process.env.PORT || 33750;
 var args = process.argv;
 
-work();
-
-function work(){
-  if (args[2]) {
-    if (/^\d+$/g.test(args[2])) {
-      port = args[2];
-    } else {
-      return runner(args[2]);
-    }
-  }
-
-  router.listen(port, function(err) {
-    if (err.message.indexOf("listen") >= 0) {
-      this.listen(0)
-    }
-  });
+if (args[2] && /^\d+$/g.test(args[2])) {
+  port = args[2];
 }
+
+router.listen(port, function(err) {
+  if (err.message.indexOf("listen") >= 0) {
+    this.listen(0);
+  }
+});
