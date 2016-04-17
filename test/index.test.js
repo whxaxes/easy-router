@@ -4,9 +4,7 @@ var request = require('supertest');
 var pedding = require('pedding');
 require('chai').should();
 
-var router = Router();
-
-router.init({
+var router = Router({
   root: __dirname,
   useCache: true,
   maps: {
@@ -24,7 +22,7 @@ router.set('testFun', function(req, res, requestpath) {
   res.end('testFun');
 });
 
-describe('/test/index.test.js 访问测试', function(){
+describe('/test/index.test.js: 访问测试', function(){
   it('应该能成功访问页面index.html', function(done){
     request(server)
       .get('/index')
@@ -84,7 +82,7 @@ describe('/test/index.test.js 访问测试', function(){
   });
 
   it('开启debug模式访问view目录下的文件应该正常', function(done) {
-    request(Router().init({
+    request(Router({
       root: __dirname,
       debug: true,
       maps: {'**/*': '**/*'}
@@ -94,7 +92,7 @@ describe('/test/index.test.js 访问测试', function(){
   });
 
   it('开启debug模式访问view目录, 应该能获得所有目录列表', function(done) {
-    request(Router().init({
+    request(Router({
       root: __dirname,
       debug: true,
       maps: {'**/*': '**/*'}
@@ -109,7 +107,7 @@ describe('/test/index.test.js 访问测试', function(){
   });
 
   it('开启debug模式访问view目录, /:html只允许处理html文件', function(done) {
-    request(Router().init({
+    request(Router({
       root: __dirname,
       debug: true,
       maps: {'**/*': '**/*'}

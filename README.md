@@ -36,38 +36,43 @@ router app.js
 ```
 <br><br>
 ##### 在文件内中也可以引用，最快捷用法
+
+```javascript
+var Router = require("easy-router");
+Router().setMap('**/**' , '**/*').listen(3030)
 ```
-var router = require("easy-router")();
-router.setMap('**/**' , '**/*').listen(3030);
-```
+
 ##### 使用route方法接入自己创建的http
-```
-var router = require("easy-router")();
-router.setMap({
-    "/topic/*":"./pratice/topic_*.html",      //页面访问
-
-    "* , *_360 , *_baidu":"html/Topic/*.html",
-
-    "/public/**/*":"../public/biz009/**/*"        //静态资源
-
-    "/runMethod":function(req , res){       //执行方法
-        res.end("test")
-    }
-});
+```javascript
+var Router = require("easy-router");
+var router = Router({
+    root: './',         // 项目根目录
+    maps: {             // 初始的路由表
+          "/topic/*":"./pratice/topic_*.html",      //页面访问
+          "* , *_360 , *_baidu":"html/Topic/*.html",
+          "/public/**/*":"../public/biz009/**/*"        //静态资源
+          "/runMethod":function(req , res){       //执行方法
+              res.end("test")
+          }
+      },
+    debug: false,       // 如果开启debug模式，则进入自动检索当前目录文件模式
+    useZlib: true,      // 是否使用gzip压缩
+    useCache: false,    // 如果设为true，则使用http缓存
+    maxCacheSize: 0.5   // 凡是小于maxCacheSize的资源将以文件内容的md5值作为Etag，单位为MB
+})
 
 http.createServer(function(req , res){
     router.route(req , res);
 }).listen(3030)
+
 ```
 
-我的[node-test项目](https://github.com/whxaxes/node-test)使用了该路由模块，可参考node-test项目代码。
-
 ## API
+### Router(options)
+返回一个router对象
+
 ### router.listen(port);
 监听端口，该方法返回http server对象
-
-### router.init(options);
-初始化路由，可以不执行。执行setMap的时候router会检测有无初始化，若尚未初始化则自动初始化
 
 ### router.setMap(maps);
 添加路由映射，该方法返回router对象
@@ -80,7 +85,8 @@ http.createServer(function(req , res){
 
 <br>
 ## Options
-上面init方法传的参数：
+实例化router对象时传入的参数：
+
 ### debug
 默认值为false，如果设为true，当设置类似于：
 ```
