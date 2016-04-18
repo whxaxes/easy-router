@@ -52,16 +52,22 @@ http.createServer(function(req , res){
 ### 命令行启动
 > 需全局安装easy-router
 
-在想创建文件服务的目录下执行`router`并按回车<br>
-默认端口为`33750`，如果输入命令时添加端口号：`router -p 9030`，则会使用命令里的端口<br>
+在想创建文件服务的目录下执行`router`并按回车，默认端口为`33750`，如果当前端口被占用，则会自动分配一个可用端口<br>
+![image](http://whxaxes.github.io/easy-router/images/test5.png "test")
 
-> 如果当前端口被占用，则会自动分配一个可用端口
-
-![image](http://whxaxes.github.io/easy-router/images/test2.jpg "test")
+如果输入命令时添加端口号：`router -p 9030`，则会使用命令里的端口<br>
+![image](http://whxaxes.github.io/easy-router/images/test7.png "test")
 
 服务启动后，访问:`http://localhost:33750/` 即可看到网站根目录的文件列表<br>
 如果输入filename为`/:keyword`，则会列出文件名内含`keyword`字符的文件/文件夹，如果`keyword`为空则会列出全部文件/文件夹<br>
 ![image](http://whxaxes.github.io/easy-router/images/test4.jpg "test")
+
+命令行参数：
+```
+router -h --help            help
+router -v --version         show version
+router -p --port <port>     set server port
+```
 
 ## Rules
 `**`代表匹配多级目录, `*`代表匹配字符
