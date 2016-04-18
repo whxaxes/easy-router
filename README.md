@@ -31,7 +31,7 @@ var Router = require("easy-router");
 var maps = {
   "/topic/*":"./pratice/topic_*.html",        // 页面访问
   "*, *_360, *_baidu":"html/Topic/*.html",    // 可以用逗号相隔
-  "/public/**/*":"./public/biz009/**/*"       // 静态资源
+  "/public/**/*":"./public/biz009/**/*",      // 静态资源
   "/runMethod":function(req , res){           // 可以加方法
     res.end("test")
   }
