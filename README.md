@@ -1,6 +1,7 @@
 # easy-router
 
 [![NPM version][npm-image]][npm-url]
+[![Downloads][downloads-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
 
@@ -130,6 +131,7 @@ whxaxes
 MIT.
 
 [npm-url]: https://npmjs.org/package/easy-router
+[downloads-image]: http://img.shields.io/npm/dm/easy-router.svg?style=flat-square
 [npm-image]: http://img.shields.io/npm/v/easy-router.svg?style=flat-square
 [travis-url]: https://travis-ci.org/whxaxes/easy-router
 [travis-image]: http://img.shields.io/travis/whxaxes/easy-router.svg?style=flat-square
