@@ -1,0 +1,34 @@
+{
+  "name": "easy-router",
+  "version": "2.2.3",
+  "description": "npm install easy-router",
+  "bin": {
+    "router": "bin/start"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make test",
+    "cover": "make cover"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whxaxes/easy-router.git"
+  },
+  "author": "wanghx",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/whxaxes/easy-router/issues"
+  },
+  "homepage": "https://github.com/whxaxes/easy-router",
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.3",
+    "mocha": "^2.4.5",
+    "pedding": "^1.0.0",
+    "supertest": "^1.2.0"
+  }
+}
