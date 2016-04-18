@@ -1,21 +1,51 @@
 #! /usr/bin/env node
 
-var router = require("../")({
-  debug: true,
-  maps: {
-    "**/*": "**/*"
-  }
-});
+var fs = require('fs');
+var path = require('path');
+var logger = require('../lib/logger');
+var Router = require('../');
 
 var port = process.env.PORT || 33750;
 var args = process.argv;
+var argMaps = {
+  help:    ['-h', '--help'],
+  version: ['-v', '--version'],
+  port:    ['-p', '--port']
+};
 
-if (args[2] && /^\d+$/g.test(args[2])) {
-  port = args[2];
-}
+!function () {
+  var nport;
 
-router.listen(port, function(err) {
-  if (err.message.indexOf("listen") >= 0) {
-    this.listen(0);
+  for (var i = 0; i < args.length; i++) {
+    if (argMaps.help.indexOf(args[i]) >= 0) {
+      return logger.log(
+        '\n\n' +
+        'Usage: router <command>\n\n' +
+        '   router -h --help             help \n' +
+        '   router -v --version          show version \n' +
+        '   router -p --port <port>      set server port, default is 33750 \n'
+      );
+    } else if (argMaps.version.indexOf(args[i]) >= 0) {
+      return logger.log(
+        'v' + JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')).toString()).version
+      );
+    } else if (argMaps.port.indexOf(args[i]) >= 0) {
+      nport = /^\d+$/.test(args[i + 1]) ? args[i + 1] : port;
+
+      break;
+    }
   }
-});
+
+  Router({
+    debug: true,
+    maps: {"**/*": "**/*"}
+  }).listen(nport || port, function(err) {
+    if (err.message.indexOf("listen") >= 0) {
+      if(nport) {
+        logger.log(nport + '端口已被占用, 请更换端口再试');
+      } else {
+        this.listen(0);
+      }
+    }
+  });
+}();

@@ -39,6 +39,31 @@ describe('/test/bin.start.test.js: 启动器测试', function(){
           done();
         })
     });
-  })
+  });
+
+  it('运行启动器时, 使用自定义端口应该能通过', function(done){
+    var definePort = 36780;
+    var child = child_process.fork(
+      path.join(__dirname, '../bin/start'),
+      ['-p', definePort]
+    );
+
+    child.on('exit' , function(code){
+      if(code !== 0) {
+        child.kill('SIGHUP');
+      }
+    });
+
+    child.on('error' , function(err){
+      child.kill('SIGHUP');
+      done(err);
+    });
+
+    child.once('message', function(data){
+      data.port.should.be.have.eql(definePort);
+      child.kill('SIGHUP');
+      done();
+    });
+  });
 
 });
