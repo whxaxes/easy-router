@@ -98,12 +98,6 @@ router -p --port <port>     set server port
 ### router.setMap(maps);
 添加路由映射，该方法返回router对象
 
-### router.routeTo(req , res , filepath , headers);
-根据路径引导路由至相应文件，可以添加响应头headers
-
-### router.error(res);
-定向至错误页面
-
 <br>
 ## Options
 实例化router对象时传入的参数：
