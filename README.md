@@ -5,7 +5,7 @@
 [![Build Status][travis-image]][travis-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
 
-### 简易路由，可以快速创建http服务，用于测试本地项目
+### 简易路由，可以快速创建http文件服务，用于测试本地项目
 
 > 模块是自己写来用于快速方便创建文件服务, 或者http服务的, 不依赖任何外部模块, 写着练手, 自己觉得挺方便好用的~
 
