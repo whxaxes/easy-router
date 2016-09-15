@@ -2,6 +2,7 @@ var Router = require('../');
 var http = require('http');
 var request = require('supertest');
 var pedding = require('pedding');
+var path = require('path');
 require('chai').should();
 
 var router = Router({
@@ -12,11 +13,13 @@ var router = Router({
     'index': 'view/index.html',
     'test?v=*': 'view/my*.html',
     'nihao/**/ho*eo': 'view/**/*.html',
-    '/public/bi*/**/*': 'public/**/*'
+    '/public/bi*/**/*': 'public/**/*',
+    'absolute': path.join(__dirname, './view/index.html'),
+    'absolute/**/*': path.join(__dirname, 'public') + '/**/*',
   }
 });
 
-var server = router.listen();
+var server = router.listen(9011);
 
 router.set('testFun', function(req, res, requestpath) {
   res.end('testFun');
@@ -78,6 +81,18 @@ describe('/test/index.test.js: 访问测试', function(){
   it('应该能成功访问到favicon', function(done){
     request(server)
       .get('/favicon.ico')
+      .expect(200, done);
+  });
+
+  it('绝对路径访问应该成功', function(done){
+    request(server)
+      .get('/absolute')
+      .expect(200, done);
+  });
+
+  it('绝对路径通配访问应该成功', function(done){
+    request(server)
+      .get('/absolute/stylesheets/css/man.css')
       .expect(200, done);
   });
 
