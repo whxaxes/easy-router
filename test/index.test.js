@@ -8,6 +8,7 @@ require('chai').should();
 var router = Router({
   root: __dirname,
   useCache: true,
+  silent: true,
   maps: {
     '/my/**/*': 'func:testFun',
     'index': 'view/index.html',
@@ -19,7 +20,7 @@ var router = Router({
   }
 });
 
-var server = router.listen(9011);
+var server = router.listen(0);
 
 router.set('testFun', function(req, res, requestpath) {
   res.end('testFun');

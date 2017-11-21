@@ -23,7 +23,10 @@
     "url": "https://github.com/whxaxes/easy-router/issues"
   },
   "homepage": "https://github.com/whxaxes/easy-router",
-  "dependencies": {},
+  "dependencies": {
+    "ip": "^1.1.5",
+    "opn": "^5.1.0"
+  },
   "devDependencies": {
     "chai": "^3.5.0",
     "istanbul": "^0.4.3",

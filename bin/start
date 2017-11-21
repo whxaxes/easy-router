@@ -2,6 +2,8 @@
 
 var fs = require('fs');
 var path = require('path');
+var opn = require('opn');
+var ip = require('ip').address();
 var logger = require('../lib/logger');
 var Router = require('../');
 
@@ -36,16 +38,23 @@ var argMaps = {
     }
   }
 
-  Router({
+  var server = Router({
     debug: true,
     maps: {"**/*": "**/*"}
-  }).listen(nport || port, function(err) {
-    if (err.message.indexOf("listen") >= 0) {
+  });
+  
+  server.listen(nport || port, function(err) {
+    if (err && err.message.indexOf("listen") >= 0) {
       if(nport) {
         logger.log(nport + '端口已被占用, 请更换端口再试');
       } else {
         this.listen(0);
       }
     }
+  });
+
+  server.on('listening', function() {
+    var port = server.address().port;
+    opn('http://' + ip + ':' + port);
   });
 }();
