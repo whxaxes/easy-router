@@ -41,9 +41,7 @@ var argMaps = {
   var server = Router({
     debug: true,
     maps: {"**/*": "**/*"}
-  });
-  
-  server.listen(nport || port, function(err) {
+  }).listen(nport || port, function(err) {
     if (err && err.message.indexOf("listen") >= 0) {
       if(nport) {
         logger.log(nport + '端口已被占用, 请更换端口再试');
